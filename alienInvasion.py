@@ -5,6 +5,7 @@ from time import sleep
 from settings import Settings
 from ship import Ship
 from game_stats import GameStats
+from scoreboard import Scoreboard
 from button import Button
 from bullet import Bullet
 from alien import Alien
@@ -22,6 +23,7 @@ class AlienInvasion:
         pygame.display.set_caption("Alien Invasion")
 
         self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -31,7 +33,7 @@ class AlienInvasion:
     
         self.bg_color = (self.settings.bg_color)
 
-        self.game_active = False
+        self.game_active = True
 
         self.play_button = Button(self, "Play")
 
@@ -62,6 +64,7 @@ class AlienInvasion:
     def _check_play_button(self, mouse_pos):
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if button_clicked and not self.game_active:
+            self.settings.initialize_dynamic_settings()
             self.stats.reset_stats()
             self.game_active = True
     
@@ -119,6 +122,7 @@ class AlienInvasion:
         if not self.aliens:
             self.bullets.empty()
             self._create_fleet()
+            self.settings.increase_speed()
 
     def _create_fleet(self):
         alien = Alien(self)
@@ -159,7 +163,7 @@ class AlienInvasion:
         self.settings.fleet_direction *= -1
 
     def _ship_hit(self):
-        if self.stats.ships_left > 0:
+        if self.stats.ships_left >0:
             self.stats.ships_left -= 1
 
             self.bullets.empty()
@@ -169,9 +173,9 @@ class AlienInvasion:
             self.ship.center_ship()
 
             sleep(0.5)
-        
+
         else:
-            game_active = False
+            self.game_active = False
             pygame.mouse.set_visible(True)
 
     def _check_aliens_bottom(self):
